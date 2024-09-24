@@ -13,17 +13,17 @@ namespace Tgs.Payment.AntPay.Controllers;
 [ApiController]
 public class DepositController(ILogger<DepositController> logger) : ControllerBase
 {
-    [Consumes("application/json")]
-    [Produces(MediaTypeNames.Text.Plain)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [Produces(MediaTypeNames.Application.Json)]
     [HttpPost("callback")]
-    public async Task<string> DepositCallbackAsync(
+    public async Task<object> DepositCallbackAsync(
        [FromServices] IGetService<GetDepositFormQuery, DepositForm?> getService,
        [FromServices] IPaymentServiceClient paymentServiceClient,
        [FromServices] IPaymentClient paymentClient,
        [FromServices] AntPayHasher hasher,
        [FromBody] CallbackDepositViewModel source)
     {
-        logger.LogInformation("{source}", source);
+        logger.LogInformation("{source}", JsonSerializer.Serialize(source));
         
         var formId = Guid.Parse(source.MerOrderNo);
 
@@ -95,8 +95,10 @@ public class DepositController(ILogger<DepositController> logger) : ControllerBa
                 break;
         }
         
-        return """
-            {"code":1,"message":"成功"}
-            """;
+        return new
+        {
+            code = 1,
+            message = "成功"
+        };
     }
 }
